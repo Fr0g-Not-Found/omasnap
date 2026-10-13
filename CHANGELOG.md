@@ -7,6 +7,16 @@ earlier development is recorded in the [commit history](https://github.com/omaco
 
 ### Added
 
+- Hold `Ctrl` while dragging with Cut (`X`) to insert a transparent band.
+  Annotations shift with the image, and insertion supports undo and redo.
+
+- `Tab` cycles region selection between free, square, 3:4, and 16:9 while
+  capturing; `Shift+Tab` cycles back. The capture guide shows the active aspect.
+
+- Fresh captures save automatically without losing the clipboard copy or timed
+  preview. Set `[output] autosave = false` to opt out. Saved files survive preview
+  expiry, and explicit copy-only output remains copy-only.
+
 - Save As (`Ctrl+Shift+S`): choose a PNG destination.
   The chooser follows the active theme, remembers its folder during editing,
   and saves lossless PNGs atomically on a worker.
@@ -52,6 +62,9 @@ earlier development is recorded in the [commit history](https://github.com/omaco
 
 ### Fixed
 
+- Run OCR's tesseract on one thread. Its OpenMP pool spun on every core and
+  made text grabs slower, not faster: a full-screen read drops from about
+  1.7 s to 1.0 s with a third of the CPU time, and reads the same text.
 - Open the editor on the preview's current monitor instead of falling back to
   the primary display when editing a preview or pinned capture.
 - Retain logical display dimensions inside exported PNGs, so captures from

@@ -20,7 +20,7 @@ preview keeps it on screen.
 - Smart selection by default: drag a freeform region, click a window to crop
   it, or click open monitor space for the full monitor. Explicit region,
   window, fullscreen, and scrolling-region modes remain available.
-- Fresh captures copy immediately and show a floating preview for 10 seconds
+- Fresh captures save, copy to the clipboard, and show a floating preview for 10 seconds
   without taking keyboard focus. Hover for Pin, Edit, Copy, file drag, and Close
   controls. Use the pin button, `Ctrl+P`, `T` while hovered, or drag the preview to
   keep it on screen. Edit opens on the preview's current monitor.
@@ -65,6 +65,8 @@ preview keeps it on screen.
   brightens it and shows crop handles when no annotation is selected.
 - Cut tool: drag across a band of the image to remove it and collapse the gap, with a
   live preview and dashed seam marker while dragging; annotations shift to follow.
+  Hold **Ctrl** (or **Ctrl+X**) to insert a transparent band instead; the toolbar
+  icon swaps to a split-plus while Ctrl is down.
   Moving or resizing an existing layer suspends the armed tool's action until
   release, then leaves the tool ready for the next canvas gesture.
 - Pin a finished capture as a bottom-right floating compositor window, launched
@@ -248,7 +250,7 @@ omasnap fullscreen
 omasnap smart
 ```
 
-These options choose what is initially selected. Completing a selection copies it
+These options choose what is initially selected. Completing a selection saves it, copies it,
 and shows a preview that fades after 10 seconds of idle time unless kept. Existing
 previews and pins are ordinary compositor windows and remain visible in later
 screen captures; close or move them aside when they cover the next capture area.
@@ -257,6 +259,11 @@ For annotation before any output, add `--editor overlay` or `--editor window`.
 You can also press `E` (edit) or `A` (annotate) in the capture picker to keep
 the annotator open after the capture. Press either key again to turn it off.
 The editor then controls whether the result is copied, saved, or both.
+
+Fresh captures automatically save as well as copying to the clipboard and
+showing a preview. Set `[output] autosave = false` to opt out. Preview expiry leaves the saved PNG intact. Explicit
+`--copy` remains copy-only; annotation before output still waits for your chosen
+Copy or Save action.
 
 Quick output skips the preview as well as the annotation editor. Add `--copy` to copy
 only, `--save` to save only, or both flags to copy and save. Region and window captures output after selection;
@@ -370,6 +377,9 @@ window = floating
 backdrop = opaque
 
 [output]
+# Save fresh captures while still copying and showing the timed preview.
+# Default: true. Set false to opt out.
+autosave = true
 # Where saved screenshots go. Default: ~/Pictures/Screenshots
 directory = ~/Pictures/Captures
 # Filename pattern, without extension (.png is appended).
@@ -446,6 +456,7 @@ controls to return focus from the live page.
 |---|---|
 | Click | In smart mode, capture the window under the pointer, or the full monitor outside any window |
 | Drag | Select a region, with its native pixel size shown at the pointer |
+| `Tab` / `Shift+Tab` | Cycle the region's shape: free (default), square, 3:4, 16:9; works mid-drag |
 | `S` | Toggle scrolling-region mode |
 | `E` / `A` | Toggle annotation after capture; the capture guide shows on/off, and the choice also applies to scrolling captures |
 | `R` | Restore the last drawn region, including from a previous Omasnap launch in this login session (same monitor and overlay size) |
@@ -476,7 +487,7 @@ region after changing the display layout.
 | `R` | Rectangle; hover the shape button for rectangle, ellipse, and fill controls; `Alt`+wheel rounds corners |
 | `E` | Ellipse; shares the shape submenu and filled/hollow toggle |
 | `D` | Redact; press again to toggle randomized pixelation or solid redaction |
-| `X` | Cut out a band; drag to preview the crossed-out strip, then release to remove and collapse it |
+| `X` | Cut out a band; drag to preview the crossed-out strip, then release to remove and collapse it. **Ctrl** (with Cut armed, or **Ctrl+X**) inserts a band instead; the cut icon becomes a split-plus |
 | `T` | Text on a cream readability pill, with Neucha as the default. Click for a one-line label, or drag a box to give it room for several lines: Enter moves to the next line while there is room and commits on the last one; `Shift+Enter` always adds a line; `Esc` commits the text and dismisses the annotator; long text wraps at the current canvas edge by default, while moving it or dragging its width handle beyond that edge expands the canvas; clicking away keeps the text; press T again to toggle the pill |
 | `Shift+T` | Cycle the next or selected text through Neucha, JetBrains Mono, and Inter Display |
 | `O` | Recognize and copy all text in the current image |
@@ -626,6 +637,12 @@ original source frame.
 ```bash
 make check
 ```
+
+Smoke screenshots, fixtures, and saved captures go in `build/smoke-output/`,
+including when the executable is launched directly from the repository root.
+For a custom build directory, output lives in `smoke-output/` beside the executable.
+Use `--output-dir <directory>` to choose another artifact directory; positional
+paths and unknown flags are rejected.
 
 The smoke executable exercises smart/region/window/fullscreen startup modes, capture selection,
 working-document persistence (source plus op-log JSON), annotation tools, undo/redo
