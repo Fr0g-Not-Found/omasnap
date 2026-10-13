@@ -98,13 +98,13 @@ bool writePng(const QImage &image, QIODevice &device) {
   QByteArray filtered(stride * pixels.height(), Qt::Uninitialized);
   for (int y = 0; y < pixels.height(); ++y) {
     char *row = filtered.data() + qsizetype(y) * stride;
-    // No row prediction: screenshots compress well at level 1, and this
+    // No row prediction: screenshots compress well at level 2, and this
     // also avoids an expensive inverse filter in downstream PNG readers.
     *row = 0;
     std::memcpy(row + 1, pixels.constScanLine(y), rowBytes);
   }
   const std::unique_ptr<libdeflate_compressor, decltype(&libdeflate_free_compressor)>
-      compressor(libdeflate_alloc_compressor(1), libdeflate_free_compressor);
+      compressor(libdeflate_alloc_compressor(2), libdeflate_free_compressor);
   if (!compressor)
     return false;
   const auto capacity = static_cast<qsizetype>(
